@@ -35,7 +35,7 @@ var euclidean = function(t,p,c){
  *
  */
 
-function trilat(data, allowedDist) {
+exports.trilat = function(data, allowedDist) {
     var nbPoints = data.length;
     var t = math.matrix(nbPoints,2);//[1:Npnt]'; // independent variable
     var y_data = math.matrix(nbPoints, 1);
@@ -49,7 +49,7 @@ function trilat(data, allowedDist) {
     var weight = [1];
     var opts = [ 2, 100, 1e-3, 1e-3, 1e-3, 1e-2, 1e-2, 11, 9, 1 ];
     var consts = [];
-    
+
     var Xs = [ data[0][0], data[1][0], data[2][0] ];
     var Ys = [ data[0][1], data[1][1], data[2][1] ];
     var minX = Math.min.apply(Math, Xs);
@@ -59,18 +59,16 @@ function trilat(data, allowedDist) {
     var avgX = ( Xs[0] + Xs[1] + Xs[2] ) / 3;
     var avgY = ( Ys[0] + Ys[1] + Ys[2] ) / 3;
     var ad = allowedDist || 0;
-    
+
     var p_init = math.matrix([[avgX], [avgY]]);
     var p_min = math.matrix([[minX-ad], [minY-ad]]);
     var p_max = math.matrix([[maxX+ad], [maxY-ad]]);
-    
+
     // https://github.com/mljs/curve-fitting/blob/master/Documentation.md
     var p_fit = LM.optimize(euclidean,p_init,t,y_data,weight,-0.01,p_min,p_max,consts,opts);
     p_fit = p_fit.p;
-    
+
     // euclidean(t,p_fit,consts)
-    
+
     return [ p_fit[0][0], p_fit[1][0] ];
 }
-
-module.exports = trilat;
